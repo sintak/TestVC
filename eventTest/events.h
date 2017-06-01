@@ -170,4 +170,9 @@ std::pair<O, F> event_handler(O o, F f) {
 	return std::pair<O, F>(o, f);
 }
 
+class EventArgs {
+public:
+	virtual ~EventArgs() {}
+};
+
 #endif

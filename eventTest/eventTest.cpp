@@ -18,7 +18,7 @@ int main()
 	Subject printer;
 	Observer v8Handler(&printer);
 	printer.NewYearComing(2015);
-	printer.updateAge(30);
+ 	printer.updateAge(31);
 	system("pause");
 	return 0;
 }

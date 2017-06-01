@@ -4,7 +4,7 @@
 #include "stdafx.h"
 #include <iostream>	
 #include <boost/thread.hpp>
-#include <boost/asio.hpp>
+//#include <boost/asio.hpp>
 
 using namespace std;
 //
@@ -135,25 +135,117 @@ private:
 	boost::mutex _mutex;
 
 };
+int z = 99;
+class Ob {
+public:
+	int a;
+	Ob(int a)
+	{
+		this->a = a;
+	}
+};
+void itPlus() {
+}
+map<string, int> gm;
+class LambdaThreadTester {
+public:
+	void test() {
+		/*int a = 3;
+		int b = 4;*/
+		int c = 5;
+		Ob ob(13);
+		/*boost::thread t([a, b](int& c) {
+		c = c + 1;
+		cout << a << " " << b << " " << c << endl;
+		}, c);*/  // 参数引用传递，不行
+		/*boost::thread t([a, b](int* c) {
+			*c = *c+ 1;
+			cout << a << " " << b << " " << *c << endl;
+		}, &c);
+		t.join();*/ // 指针方式传递可以
+		//boost::thread t([this, a, b, &c](int z1, int oba) {  // int z1：非局部变量无法捕获，需要用参数传递。或者捕获复杂对象参数比较方便
+		//	++c;
+		//	cout << a << " " << b << " " << c << z1 << endl;
+		//	this->test1();
 
-void print(const boost::system::error_code& e,
-	boost::asio::deadline_timer* t)
-{
-	//boost::thread::sleep(boost::get_system_time() + boost::posix_time::seconds(3));  // 在主线程中使用（子线程好像也可以）
-	boost::this_thread::sleep(boost::posix_time::seconds(2));  // 这个方法只能在线程中用, 在主线程中用无效.
-	cout << "ddd" << endl;
-	t->expires_at(t->expires_at() + boost::posix_time::seconds(4));  // 间隔时间和执行时间，最后花费时间为长度大的那个时间
-	t->async_wait(boost::bind(print, boost::asio::placeholders::error, t));
-}
-void test1()
-{
-	boost::asio::io_service io;
-	boost::asio::deadline_timer t(io, boost::posix_time::seconds(4));
-	t.async_wait(boost::bind(print, boost::asio::placeholders::error, &t));
-	io.run();
-}
+		//	boost::this_thread::sleep(boost::posix_time::seconds(5));
+		//}, z, ob.a);  // 引用捕获形式，ok
+		//t.join();
+		cout << c << endl;
+
+
+		//map<int, int> m;
+		//m.insert(std::pair<int, int>(11, 114));
+		//m.insert(std::pair<int, int>(12, 115));
+		//map<int, int>::iterator it = m.begin();
+		//std::function<void(map<int, int>::iterator)> func = [](map<int, int>::iterator it) {  //错误？迭代器不支持多线程？
+		//	cout << it->second << endl;
+		//	++it;
+		//	cout << it->second << endl;
+		//};
+		////func();
+		//boost::thread t2(func, it);
+
+		map<string, int>::iterator gmIt = gm.find("27");
+
+		gm["12"] = 33;
+		gm["13"] = 44;
+		gm["14"] = 55;
+
+		for (int i = 0; i < 200; i++)
+		{
+			boost::thread t3([]() {
+				cout << gm["12"] << gm["13"] << endl;
+			});
+
+		}
+
+
+
+		/*boost::thread t1([&it]() mutable {
+			cout << it->second << endl;
+			++it;
+			cout << it->second << endl;
+		});*/
+	}
+
+	void test1() {
+		cout << "I am test1" << endl;
+	}
+
+	void test2() {
+		cout << "I am test2" << endl;
+	}
+};
+
+//void print(const boost::system::error_code& e,
+//	boost::asio::deadline_timer* t)
+//{
+//	//boost::thread::sleep(boost::get_system_time() + boost::posix_time::seconds(3));  // 在主线程中使用（子线程好像也可以）
+//	boost::this_thread::sleep(boost::posix_time::seconds(2));  // 这个方法只能在线程中用, 在主线程中用无效.
+//	cout << "ddd" << endl;
+//	t->expires_at(t->expires_at() + boost::posix_time::seconds(4));  // 间隔时间和执行时间，最后花费时间为长度大的那个时间
+//	t->async_wait(boost::bind(print, boost::asio::placeholders::error, t));
+//}
+//void test1()
+//{
+//
+//	boost::asio::io_service io;
+//	boost::asio::deadline_timer t(io, boost::posix_time::seconds(4));
+//	t.async_wait(boost::bind(print, boost::asio::placeholders::error, &t));
+//	io.run();
+//
+//}
+
+
 int main()
 {
+
+	boost::thread t([]() {
+		LambdaThreadTester lt;
+		lt.test();
+	});
+
 	//HelloWorld hw;
 	//hw.doWork();
 	//hw.doWork();
@@ -168,7 +260,7 @@ int main()
 	timer.async_wait(&print);
 	io.run();*/
 
-	test1();
+	//test1();
 	system("pause");
 	return 0;
 }

@@ -1,5 +1,18 @@
 #include "stdafx.h"
 #include "events.h"
+#include <sstream>
+#include <iostream>
+
+using namespace std;
+
+class AgeChangedEventArgs : EventArgs {
+public:
+	int ageNow;
+	AgeChangedEventArgs(int age)
+	{
+		this->ageNow = age;
+	}
+};
 
 class Subject {  // Printer
 public:
@@ -10,8 +23,11 @@ public:
 	// void(Subject *sender, int oldAge, int newAge)
 	event<Subject, int, int> onAgeChanged;
 
+	event<Subject, AgeChangedEventArgs> onAgeChangedddddddd;
+
 	// need to pass the sender param when constructing the events
-	Subject() : onDataChanged(this), onNewAgeReceived(this), onAgeChanged(this) {}
+	Subject() : onDataChanged(this), onNewAgeReceived(this), onAgeChanged(this), onAgeChangedddddddd(this){}
+		
 
 	void updateAge(int newAge) {
 		int oldAge = age;
@@ -26,6 +42,7 @@ public:
 	void NewYearComing(int year) {
 		this->age = year - 1987;
 		onNewAgeReceived(this->age);
+		onAgeChangedddddddd(AgeChangedEventArgs(this->age));
 	}
 private:
 	int age;
@@ -98,6 +115,12 @@ public:
 			};
 			return lambda_expression<decltype(lambda), void, Subject*, int>(lambda); 
 		})();
+
+		subject->onAgeChangedddddddd += [this](Subject*sender, AgeChangedEventArgs e) {
+			stringstream ss;  
+			ss << "do whatever is needed 6666678 123 abc " << e.ageNow << endl;
+			cout << ss.str();
+		};
 	}
 
 	virtual ~Observer() {

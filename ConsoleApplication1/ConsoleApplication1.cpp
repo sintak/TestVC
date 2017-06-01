@@ -13,6 +13,7 @@
 //#include "b.h"
 //#include <QCoreApplication>  
 #include <crtdbg.h>  
+#include <functional>
 using namespace std;
 
 void test() {}
@@ -523,8 +524,66 @@ bool ws2s(const wstring &wstr, string &str)
 
 	return true;
 }
+extern "C"
+{
+	WINUSERAPI
+		int
+		WINAPI
+		MessageBoxTimeoutA(HWND hWnd, LPCSTR lpText, LPCSTR lpCaption, UINT uType, WORD wLanguageId, DWORD dwMilliseconds);
+	WINUSERAPI
+		int
+		WINAPI
+		MessageBoxTimeoutW(HWND hWnd, LPCWSTR lpText, LPCWSTR lpCaption, UINT uType, WORD wLanguageId, DWORD dwMilliseconds);
+}
+#ifdef UNICODE
+#define MessageBoxTimeout  MessageBoxTimeoutW
+#else
+#define MessageBoxTimeout  MessageBoxTimeoutA
+#endif // !UNICODE
+#define RETRY_MODE_BYUSER 0
+
+void testCallback(const vector<int>& vec, const function<bool(int)>& callback)
+{
+	for (auto i : vec)
+	{
+		if (!callback(i))
+			break;
+		cout << i << " ";
+	}
+	cout << endl;
+}
+
 int main()
 {
+
+#if RETRY_MODE_BYUSER
+	cout << "11111" << endl;
+#else
+	cout << "22222" << endl;
+#endif
+	// ---------------------
+	//int result = MessageBoxTimeout(NULL, L"正在重试中，请稍等...", L"提示", MB_YESNO | MB_SYSTEMMODAL, 0, 20000);
+	int result  = MessageBox(NULL, L"打印失败，是否重试？", L"提示", MB_YESNO | MB_SYSTEMMODAL);
+	switch (result)
+	{
+	case IDYES:
+		cout << "yes" << endl;
+		break;
+	case IDNO:
+		cout << "no" << endl;
+		break;
+	default:
+		break;
+	}
+	// ---------------------
+	bool ok1 = (true | false);
+	bool ok2 = (false && true);
+	bool ok3 = true | false;
+	bool ok4 = true | false;
+
+	// ---------------------
+	// ---------------------
+	// ---------------------
 
 	//_CrtSetBreakAlloc( 178 );//通过把内存id填入，可调试看到在哪里开辟的内存  
 
