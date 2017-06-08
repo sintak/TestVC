@@ -45,7 +45,32 @@ int main()
 	{
 		cout << e << endl;
 	}
+	catch (const std::exception& e) {
+		cout << e.what() << endl;
+	}
 	system("pause");
+	// --------------------
+	cout << "start" << endl;
+
+	try
+	{
+		throw "eeeeeeeee";
+	}
+	catch (const std::string& msg) {
+		cout << msg.c_str() << endl;
+	}
+	catch (const char* msg) {
+		cout << msg << endl;
+	}
+	catch (const std::exception& e)
+	{
+		cout << e.what() << endl;
+
+	}
+	cout << "end" << endl;
+
+	system("pause");
+
 	return 0;
 }
 

@@ -137,3 +137,55 @@ public:
 		printf("Subject age changed from %d to %d\n", oldAge, newAge);
 	}
 };
+
+// -------------
+class IStart 
+{
+public:
+	event<IStart, int> onDataReceived;
+	void OnDataReceived(int data) {
+		this->onDataReceived(data);
+	}
+
+	IStart() : onDataReceived(this) {}
+	virtual ~IStart() {
+	}
+	
+	virtual bool Start() = 0;
+
+private:
+
+};
+
+class Subject1 : public IStart
+{
+public:
+	//event<Subject1, int> onDataReceived;
+
+	Subject1() /*: onDataReceived(this)*/
+	{
+		
+	}
+	void revc(int data) {
+		this->OnDataReceived(data);
+		//this->onDataReceived(data);
+		//((IStart*)this)->onDataReceived(data);
+	}
+
+	bool Start() override { return true; }
+};
+
+class Observer1
+{
+public:
+	Observer1(IStart* subject) : subject(subject)
+	{
+		subject->onDataReceived += [this](IStart* sender, int data) { cout << data << endl; };
+	}
+	~Observer1()
+	{
+		// -=
+	}
+private:
+	IStart* subject;
+};

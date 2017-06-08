@@ -2,9 +2,29 @@
 
 
 #include "stdafx.h"
+
+#pragma comment(lib, "iphlpapi.lib")
+#pragma comment(lib, "ws2_32.lib")
+
+#include <sstream>
+#include <fstream>
+#include <string>
+#include <tchar.h>
+#include <Windows.h>
+#include <ShellAPI.h>
+#include <winspool.h>
+#include <WinSock2.h>
+#include <IPHlpApi.h>
+#include <stdlib.h>
+#include <cctype>
+#include <algorithm>
+#include <list>
+#include <Commdlg.h>
+
 #include <iostream>	
 #include <boost/thread.hpp>
-//#include <boost/asio.hpp>
+#include <boost/asio.hpp>
+#include <boost/bind.hpp>
 
 using namespace std;
 //
@@ -240,6 +260,9 @@ public:
 
 int main()
 {
+
+	boost::asio::io_service io;
+	boost::asio::serial_port sp(io, "COM2");
 
 	boost::thread t([]() {
 		LambdaThreadTester lt;

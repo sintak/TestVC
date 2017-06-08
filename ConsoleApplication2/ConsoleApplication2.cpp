@@ -6,10 +6,73 @@
 #include <string>  
 #include <iostream>  
 #include <vector>
+#include <Windows.h>
 using namespace std;
+typedef struct __WeightDataFlag2
+{
+	UINT8 unknow1 : 4;
+	UINT8 isZero : 1;  // 1：当前重量为零。      0：当前重量非零。
+	UINT8 isNetWeight : 1;  // 1：当前在去皮模式      0：没在去皮模式。
+	UINT8 isWeightAbnormal : 1;  // 1：重量溢出，或没有开机归零。    0：重量正常且已经开机
+	UINT8 unknow2 : 1;
+
+} T__WeightDataFlag2, *PT__WeightDataFlag2;
+typedef union _WeightDataFlag2
+{
+	UINT8 all;
+	T__WeightDataFlag2 bits;
+}T_WeightDataFlag2, PT_WeightDataFlag2;
+typedef struct _WeightData
+{
+	UINT8 head1;
+	UINT8 head2;
+	UINT8 flag1;
+	UINT8 sign;  // 符号：  ‘－’：重量为负。 ‘ ’：重量为正。
+	char weight[6];
+	UINT16 unit;
+	UINT8 checkSum;
+	UINT8 tail1;
+	UINT8 tail2;
+	T__WeightDataFlag2 flag2;
+	//T_WeightDataFlag2 flag2;
+
+} T_WeightData, *PT_WeightData;
 
 int main()
 {
+	// ----------------------
+	// ----------------------
+	// ----------------------
+	// ----------------------
+	// ----------------------
+	// ----------------------
+	// char转string
+	char a1 = 'b';
+	cout << string(&a1);
+	// ----------------------
+
+	map<string, bool> servicingPort;
+	if (servicingPort["fdas"] == true)
+	{
+
+	}
+	// ----------------------
+	char data[] = { 0x01, 0x02 , 0x53 , 0x20 , 0x30 , 0x30 , 0x2E , 0x30  , 0x30 , 0x30 , 0x6B , 0x67 , 0x61 , 0x03 , 0x04 , 0x30 };
+	PT_WeightData _data = (PT_WeightData)data;
+	cout << sizeof(T_WeightData) <<endl;
+	cout << _data->flag2.isZero << (_data->flag2.isNetWeight ? true : false) << _data->flag2.isWeightAbnormal  << endl;
+
+	// ----------------------
+	char c1[6] = { 0x30 , 0x30 , 0x2E , 0x30  , 0x30 , 0x30 };
+	//char c1[] = "ABCDEF";
+	char c = 0x41;
+	string s1 = c1;
+	cout << string(&c1[0], &c1[strlen(c1)]) << endl;  // not ok
+	cout << string(&c1[0], &c1[6]) << endl;  // ok
+	cout << string(c1, 6) << endl;  // ok
+	cout << s1 << endl;  // not ok
+	cout << c << endl;  // ok
+
 	// ----------------------
 	map<string, vector<int>> m1;
 	map<string, vector<int>>::iterator m1It = m1.find("11");
