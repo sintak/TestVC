@@ -22,6 +22,8 @@ typedef union _WeightDataFlag2
 	UINT8 all;
 	T__WeightDataFlag2 bits;
 }T_WeightDataFlag2, PT_WeightDataFlag2;
+
+#pragma pack(1)
 typedef struct _WeightData
 {
 	UINT8 head1;
@@ -37,6 +39,40 @@ typedef struct _WeightData
 	//T_WeightDataFlag2 flag2;
 
 } T_WeightData, *PT_WeightData;
+#pragma pack()
+
+#pragma pack(1)
+typedef struct _ProtocolChangeWrap
+{
+	UINT8 stx;
+	UINT16 cmd;
+	UINT8 ext1;
+	UINT8 ext2;
+
+	static _ProtocolChangeWrap initiative() {
+		_ProtocolChangeWrap wrap;
+		wrap.stx = 0x3c;
+		wrap.cmd = 0x50 << 8 | 0x42;
+		wrap.ext1 = 0x3e;
+		wrap.ext2 = 0x09;
+		return wrap;
+	}
+
+	static _ProtocolChangeWrap passivity() {
+		_ProtocolChangeWrap wrap;
+		wrap.stx = 0x3c;
+		wrap.cmd = 0x41 << 8 | 0x4c;
+		wrap.ext1 = 0x3e;
+		wrap.ext2 = 0x09;
+		return wrap;
+	}
+
+} T_ProtocolChangeWrap, *PT_ProtocolChangeWrap;
+#pragma pack()
+
+void test(char data[], char* data2) {
+	cout << data[0] << data2[1] << endl;
+}
 
 int main()
 {
@@ -44,11 +80,35 @@ int main()
 	// ----------------------
 	// ----------------------
 	// ----------------------
+	char data1[2] = {'a', 'b'};
+	test(data1, data1);
 	// ----------------------
+
+
+	T_ProtocolChangeWrap& wrap = T_ProtocolChangeWrap().initiative();
+	char* buf = (char*)&wrap;
+	unsigned char* buf1 = (unsigned char*)&wrap;
+
+	unsigned char buf2[5];
+	memcpy(buf2, &wrap, 5);
+
+
+	T_ProtocolChangeWrap wrap1;
+	wrap1.stx = 0x3c;
+	wrap1.cmd = 0x41 << 8 | 0x4c;
+	wrap1.ext1 = 0x3e;
+	wrap1.ext2 = 0x09;
+	char b[5];
+	unsigned char b1[5];
+	memcpy(b, &wrap1, 5);
+	memcpy(b1, &wrap1, 5);
+
+	int size = sizeof(T_ProtocolChangeWrap);
+	int size1 = sizeof(T_WeightData);
 	// ----------------------
 	// char×ªstring
 	char a1 = 'b';
-	cout << string(&a1);
+	cout << string(&a1);  // Ã»½áÊø·û£¬ÂÒÂë
 	// ----------------------
 
 	map<string, bool> servicingPort;

@@ -18,18 +18,30 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="stdafx.h">
+    <ClInclude Include="SerialPort.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="targetver.h">
+    <ClInclude Include="AsyncSerial.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="BufferedAsyncSerial.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="minicom.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="stdafx.cpp">
+    <ClCompile Include="boostTest.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="boostTest.cpp">
+    <ClCompile Include="SerialPort.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="AsyncSerial.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="BufferedAsyncSerial.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

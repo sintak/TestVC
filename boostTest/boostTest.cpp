@@ -1,30 +1,18 @@
 // boostTest.cpp : 定义控制台应用程序的入口点。
+//#ifndef _WIN32_WINNT
+//#define _WIN32_WINNT 0x0501
+//#endif
 
-
-#include "stdafx.h"
-
-#pragma comment(lib, "iphlpapi.lib")
-#pragma comment(lib, "ws2_32.lib")
-
-#include <sstream>
-#include <fstream>
-#include <string>
-#include <tchar.h>
-#include <Windows.h>
-#include <ShellAPI.h>
-#include <winspool.h>
-#include <WinSock2.h>
-#include <IPHlpApi.h>
-#include <stdlib.h>
-#include <cctype>
-#include <algorithm>
-#include <list>
-#include <Commdlg.h>
+//#include "stdafx.h"
 
 #include <iostream>	
 #include <boost/thread.hpp>
 #include <boost/asio.hpp>
 #include <boost/bind.hpp>
+
+#include "SerialPort.h"
+#include "BufferedAsyncSerial.h"
+#include "minicom.h"
 
 using namespace std;
 //
@@ -257,12 +245,162 @@ public:
 //
 //}
 
-
-int main()
+void dataHandler(const char* data, unsigned int length)
 {
+	cout << "recive: " << length << endl;
+}
 
-	boost::asio::io_service io;
-	boost::asio::serial_port sp(io, "COM2");
+int main(int argc, char* argv[])
+{
+#if 0  // BufferedAsyncSerial
+	try {
+		//BufferedAsyncSerial serial("/dev/ttyUSB0", 115200);
+		BufferedAsyncSerial serial("COM2", 9600);
+
+		//Return immediately. String is written *after* the function returns,
+		//in a separate thread.
+		serial.writeString("Hello world\r\n");
+
+		//Simulate doing something else while the serial device replies.
+		//When the serial device replies, the second thread stores the received
+		//data in a buffer.
+		boost::this_thread::sleep(boost::posix_time::seconds(2));
+
+		//Always returns immediately. If the terminator \r\n has not yet
+		//arrived, returns an empty string.
+		cout << serial.readStringUntil("\r\n") << endl;
+
+		serial.close();
+
+	}
+	catch (boost::system::system_error& e)
+	{
+		cout << "Error: " << e.what() << endl;
+		return 1;
+	}
+#endif // 0
+	
+#if 0  // SerialPort
+
+	try
+	{
+		//{
+		SerialPort my_Sp("COM2");
+		my_Sp.write_to_serial("SerialPort");
+		my_Sp.read_from_serial();
+		my_Sp.call_handle();
+		getchar();
+		//}
+		getchar();
+		return 0;
+	}
+	catch (boost::system::system_error& e)
+	{
+		cout << "Error: " << e.what() << endl;
+		return 1;
+	}
+	catch (std::exception &e)
+	{
+		cout << e.what();
+		getchar();
+	}
+
+#endif // 0
+#if 1
+
+	try
+	{
+		SerialPort sp("COM1");
+		const int bufLength = 65536;
+		char buf[bufLength] = { 0 };
+		boost::thread t([&sp]() {
+			while (true)
+			{
+				/*char w[10];
+				w[0] = 'a';
+				sp.write_to_serial("hello!\n");
+				sp.write_to_serial(w);*/
+
+				char data1[] = { 0x01, 0x02, 0x53, 0x20, 0x30, 0x31, 0x2E, 0x30, 0 };
+				sp.write_to_serial(data1);
+				boost::this_thread::sleep(boost::posix_time::milliseconds(50));
+				char data2[] = { 0x30, 0x30, 0x6B, 0x67, 0x61, 0x03, 0x04, 0x60, 0 };
+				sp.write_to_serial(data2);
+				boost::this_thread::sleep(boost::posix_time::milliseconds(50));
+
+
+				char data3[] = { 0x01, 0x02, 0x53, 0x20, 0x30, 0x30, 0x2E, 0x30, 0 };
+				sp.write_to_serial(data3);
+				boost::this_thread::sleep(boost::posix_time::milliseconds(50));
+				char data4[] = { 0x30, 0x30, 0x6B, 0x67, 0x61, 0x03, 0x04, 0x60, 0 };
+				sp.write_to_serial(data4);
+				boost::this_thread::sleep(boost::posix_time::milliseconds(50));
+
+
+			}
+
+		});
+		while (1)
+		{
+			//sp.write_to_serial("serialPort");
+			//sp.read_from_serial();
+			//sp.call_handle();
+			//Sleep(100);
+
+			int length = sp.read_from_serialSync(buf, bufLength);
+			buf[bufLength-1] = '\0';
+			cout << buf <<endl;
+		}
+		sp.call_handle();
+		return 0;
+	}
+	catch (std::exception &e)
+	{
+		cout << e.what();
+		getchar();
+	}
+#endif // 0
+
+#if 0
+	try
+	{
+		if (argc != 3)
+		{
+			cerr << "Usage: minicom <device> <baud> \n";
+			return 1;
+		}
+		boost::asio::io_service io_service;
+		// define an instance of the main class of this program 
+		//Minicom c(io_service, argv[1], boost::lexical_cast<unsigned int>(argv[2]));
+		Minicom c(io_service, argv[1], boost::lexical_cast<unsigned int>(argv[2]), dataHandler);
+		// run the IO service as a separate thread, so the main thread can block on standard input 
+		boost::thread t(boost::bind(&boost::asio::io_service::run, &io_service));// io_service.run() sync
+																				 //while (c.active()) // check the internal state of the connection to make sure it's still running 
+																				 //{
+																				 //	char ch;
+																				 //	cin.get(ch); // blocking wait for standard input 
+																				 //	if (ch == 3) // ctrl-C to end program 
+																				 //		break;
+																				 //	c.write(ch);
+																				 //}
+
+		while (c.active()) // check the internal state of the connection to make sure it's still running 
+		{
+			char buf[2] = { 0x32, 0x33 };
+			boost::this_thread::sleep(boost::posix_time::seconds(2));
+			c.write(buf, 2);
+		}
+
+		c.close(); // close the minicom client connection 
+		t.join(); // wait for the IO service thread to close 
+	}
+	catch (exception& e)
+	{
+		cerr << "Exception: " << e.what() << "\n";
+	}
+#endif // 0
+
+	
 
 	boost::thread t([]() {
 		LambdaThreadTester lt;
